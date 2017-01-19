@@ -50,7 +50,9 @@ namespace QuantLib {
               one, while the two side points would be used for
               estimating partial derivatives.
     */
-    template <class T>
+// Il faut ajouter deux steps au process 
+ 
+ template <class T>
     class BinomialVanillaEngine_2 : public VanillaOption::engine {
       public:
         BinomialVanillaEngine_2(
@@ -140,6 +142,8 @@ namespace QuantLib {
         Real s2m = lattice->underlying(2, 1); // middle price
         Real s2d = lattice->underlying(2, 0); // down (low) price
 
+ //Autre calcul de delta : delta = (p2u - p2d)/((s2u-s2d)/2) et de gamma : (p2u - p2m)/(s2u-s2m) - (p2m-p2d)/(s2m-s2d)
+     
         // calculate gamma by taking the first derivate of the two deltas
         Real delta2u = (p2u - p2m)/(s2u-s2m);
         Real delta2d = (p2m-p2d)/(s2m-s2d);
@@ -147,6 +151,8 @@ namespace QuantLib {
 
         // Rollback to second-last step, and get option values (p1) at
         // this point
+     
+ // Cette étape doit être supprimée, on s'arrete à l'étape d'au dessus
         option.rollback(grid[1]);
         Array va(option.values());
         QL_ENSURE(va.size() == 2, "Expect 2 nodes in grid at first step");
@@ -161,7 +167,9 @@ namespace QuantLib {
         option.rollback(0.0);
         Real p0 = option.presentValue();
 
-        // Store results
+ //On retourne ici p2m a la place de p0, et un autre delta et gamma
+     
+     // Store results
         results_.value = p0;
         results_.delta = delta;
         results_.gamma = gamma;
